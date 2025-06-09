@@ -15,16 +15,23 @@ This interactive 3D Solar System Simulation is a web-based project built using T
 
   ## **🚀 Getting Started**
 
-### 1. Install dependencies (in terminal):
-   npm install
+  ### **1️⃣ Clone the Repository**  
+```sh
+git clone https://github.com/your-username/3D-Solar-System
+```
 
-### 2. Run using VS Code Live Server:
+### **2️⃣ Install Dependencies**
+```sh
+npm install
+
+```
+
+### **3️⃣ Run using VS Code Live Server:**
    - Right-click on index.html → Open with Live Server
 
   ##### OR run with terminal:
    npx http-server
 
-### 3. Adjust speed sliders to control orbit speed of each planet.
+### **🌓 4. Adjust speed sliders to control orbit speed of each planet.**
 
-### 4.pause the entire solar system using the pause button or change the
-### background colour of the solar system using the light/dark toggle mode button.
+
