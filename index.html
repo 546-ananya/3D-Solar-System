@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>3D Solar System</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: black;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+    #controls {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 10;
+      background: rgba(0,0,0,0.5);
+      padding: 10px;
+      border-radius: 6px;
+    }
+    button {
+      position: fixed;
+      right: 10px;
+      z-index: 10;
+      padding: 8px 16px;
+      font-size: 16px;
+      cursor: pointer;
+      background: #222;
+      border: 1px solid #555;
+      border-radius: 4px;
+      color: white;
+      user-select: none;
+    }
+    #pauseResumeBtn {
+      top: 10px;
+    }
+    #darkLightToggleBtn {
+      top: 50px;
+    }
+    button:hover {
+      background: #444;
+    }
+  </style>
+</head>
+<body>
+  <div id="controls"></div>
+  <button id="pauseResumeBtn">Pause</button>
+  <button id="darkLightToggleBtn">Light Mode</button>
+
+  <script type="module">
+    import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
+    import { createPlanets } from './planets.js';
+    import { setupSpeedControls, updatePlanetSpeeds } from './controls.js';
+
+    // Create stars background
+    function createStars(scene) {
+      const starGeometry = new THREE.BufferGeometry();
+      const starCount = 1000;
+      const positions = [];
+
+      for (let i = 0; i < starCount; i++) {
+        const x = (Math.random() - 0.5) * 2000;
+        const y = (Math.random() - 0.5) * 2000;
+        const z = (Math.random() - 0.5) * 2000;
+        positions.push(x, y, z);
+      }
+
+      starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+
+      const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 1 });
+      const stars = new THREE.Points(starGeometry, starMaterial);
+
+      scene.add(stars);
+    }
+
+    const scene = new THREE.Scene();
+
+    const camera = new THREE.PerspectiveCamera(
+      75,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
+    );
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+    const pointLight = new THREE.PointLight(0xffffff, 1.2);
+    scene.add(ambientLight, pointLight);
+
+    createStars(scene);
+
+    const planets = createPlanets(scene, THREE);
+
+    camera.position.z = 50;
+
+    setupSpeedControls(planets);
+
+    // Pause/Resume animation logic
+    let isPaused = false;
+    const pauseResumeBtn = document.getElementById('pauseResumeBtn');
+    pauseResumeBtn.addEventListener('click', () => {
+      isPaused = !isPaused;
+      pauseResumeBtn.textContent = isPaused ? 'Resume' : 'Pause';
+      if (!isPaused) {
+        animate();
+      }
+    });
+
+    // Dark/Light mode toggle logic
+    const darkLightToggleBtn = document.getElementById('darkLightToggleBtn');
+    let isDarkMode = true; // start in dark mode
+
+    darkLightToggleBtn.addEventListener('click', () => {
+      isDarkMode = !isDarkMode;
+      if (isDarkMode) {
+        document.body.style.backgroundColor = 'black';
+        darkLightToggleBtn.textContent = 'Light Mode';
+        ambientLight.intensity = 0.3;
+        pointLight.intensity = 1.2;
+      } else {
+        document.body.style.backgroundColor = 'white';
+        darkLightToggleBtn.textContent = 'Dark Mode';
+        ambientLight.intensity = 1.0;
+        pointLight.intensity = 0.8;
+      }
+    });
+
+    function animate() {
+      if (isPaused) return;
+      requestAnimationFrame(animate);
+      updatePlanetSpeeds(planets);
+      renderer.render(scene, camera);
+    }
+
+    animate();
+
+    // Responsive resizing
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
